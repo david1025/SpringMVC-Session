@@ -13,6 +13,9 @@ import javax.servlet.http.HttpServletRequest;
 @Controller
 public class SessionTestController {
 
+    /**
+     * 测试session是否获取正常
+     */
     @RequestMapping("/sessionTest")
     public void sessionTestView() {}
 
