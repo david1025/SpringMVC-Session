@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	   xmlns:p="http://www.springframework.org/schema/p"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+	<!-- 引入redis配置 -->
+	<context:property-placeholder location="classpath:redis.properties" ignore-unresolvable="true"/>
+
+	<context:annotation-config />
+
+	<!--这里添加的是Redis，因为使用的是Spring里自带的Redis的Session策略 -->
+	<bean id="redisConnectionFactory"
+		  class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory"
+		  p:host-name="${redis.host}"
+		  p:port="${redis.port}"
+		  p:password="${redis.pass}"
+		  p:use-pool="true"
+		  p:database="8" />
+
+	<bean id="stringRedisSerializer"
+		  class="org.springframework.data.redis.serializer.StringRedisSerializer" />
+
+	<bean id="redisTemplate" class="org.springframework.data.redis.core.RedisTemplate"
+		  p:connection-factory-ref="redisConnectionFactory"
+		  p:keySerializer-ref="stringRedisSerializer" p:valueSerializer-ref="stringRedisSerializer"
+		  p:hashKeySerializer-ref="stringRedisSerializer"
+		  p:hashValueSerializer-ref="stringRedisSerializer" />
+	<!-- 这里的是为了下面的 Session策略过滤器提供构造函数传入的参数，因为Session过滤器要依赖该对象来构造，所以创建一个先 -->
+	<bean name="redisOperationsSessionRepository"
+		  class="org.springframework.session.data.redis.RedisOperationsSessionRepository">
+		<constructor-arg ref="redisConnectionFactory"/>
+	</bean>
+
+	<!-- 这个是Session策略过滤器，即将容器原有的Session持久化机制，代替为Spring的 Redis持久化Session机制。 -->
+	<!-- 注意，这个名字与 web.xml里的targetBean的下value是要一致的。 -->
+	<bean name="springSession"
+		  class="org.springframework.session.web.http.SessionRepositoryFilter">
+		<constructor-arg ref="redisOperationsSessionRepository"/>
+	</bean>
+	
+</beans>
