@@ -39,5 +39,11 @@
 		  class="org.springframework.session.web.http.SessionRepositoryFilter">
 		<constructor-arg ref="redisOperationsSessionRepository"/>
 	</bean>
+
+	<!-- 配置spring-session的session过期时间 -->
+	<bean class="org.springframework.session.data.redis.config.annotation.web.http.RedisHttpSessionConfiguration">
+		<!-- 过期时间30分钟，1800秒 -->
+		<property name="maxInactiveIntervalInSeconds" value="1800"></property>
+	</bean>
 	
 </beans>
