@@ -19,6 +19,11 @@ public class SessionTestController {
     @RequestMapping("/sessionTest")
     public void sessionTestView() {}
 
+    /**
+     * 为session设置值
+     * @param request
+     * @return
+     */
     @RequestMapping("/setSession")
     @ResponseBody
     public String setSession(HttpServletRequest request) {
